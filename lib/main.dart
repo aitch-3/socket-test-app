@@ -120,12 +120,15 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       }
     } else {
-      _channel = IOWebSocketChannel.connect('ws://192.168.0.34:1000',
-          pingInterval: Duration(seconds: 2),
-          headers: {
-            'gateway-uuid': androidInfo.androidId,
-            'client-type': 'gateway',
-          });
+      _channel = IOWebSocketChannel.connect(
+        'ws://192.168.0.172:1000',
+        // 'ws://192.168.0.34:1000',
+        pingInterval: Duration(seconds: 2),
+        headers: {
+          'gateway-uuid': androidInfo.androidId,
+          'client-type': 'gateway',
+        },
+      );
       _listenSocketEvents(_channel);
       setState(() {
         _connected = true;
@@ -139,21 +142,29 @@ class _MyHomePageState extends State<MyHomePage> {
     _socketSubscription = channel.stream.listen(
       (onData) {
         print('---cehckpiotn1---');
-        print(onData);
         Map<dynamic, dynamic> message = deserialize(onData);
-        print(message);
-        print(message.runtimeType);
-        _message$.add(message);
 
-        if (message['type'] == 'initialization') {
-          _token = message['data']['token'];
+        print(message);
+
+        if (_token == null) {
+          if (message['type'] == 'initialization') {
+            _token = message['data']['token'];
+          }
+        } else {
+          print('---cehckpiotn5---');
+          print(_token);
+          if (message['token'] == _token) {
+            print('---cehckpiotn6---');
+            print(message);
+            _message$.add(message);
+          }
         }
       },
       onError: (error) {
         print('---cehckpiotn2---');
         print(error);
-
         _message$.add(null);
+        _token = null;
         setState(() {
           _connected = false;
         });
@@ -161,6 +172,7 @@ class _MyHomePageState extends State<MyHomePage> {
       onDone: () {
         print('---cehckpiotn3---');
         _message$.add(null);
+        _token = null;
         setState(() {
           _connected = false;
         });
@@ -186,6 +198,7 @@ class _MyHomePageState extends State<MyHomePage> {
       List<int> _serializedData = List.of(_converedData);
 
       _channel.sink.add(_serializedData);
+      // _channel.sink.add(json.encode({'type': 'test', 'token': _token, 'data': 'b'}));
     }
   }
 
