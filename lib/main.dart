@@ -121,8 +121,8 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     } else {
       _channel = IOWebSocketChannel.connect(
-        'ws://192.168.0.172:1000',
-        // 'ws://192.168.0.34:1000',
+        // 'ws://192.168.0.172:1000',
+        'ws://192.168.0.34:1000',
         pingInterval: Duration(seconds: 2),
         headers: {
           'gateway-uuid': androidInfo.androidId,
